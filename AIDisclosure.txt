@@ -1,0 +1,222 @@
+As outlined in this assignment description, I used AI for this assignment.  
+This file contains information about the AI tool I used, what my prompts were, note any modifications I made to the AI-generated output (and why), and confirm that I understand every line of the submitted code, and that it has been tested by myself.
+
+In class, Dr. Saiedian spoke on how pasting code into an AI database is a risk because we don't know where the information is going or how it will be used.
+Last semester, my instructor Dr. Bardas recommended we use Copilot for an assignment because they have offered a deal with KU, where they won't use the content submitted by students to train their models.
+=====================================================
+--> General Disclosure
+
+Generative AI Tool: Microsoft M365 Copilot
+Version: based on GPT-5 chat model
+
+--> Code Attribution: 
+Please see below prompts and code comments in main.c for more details
+
+--> Verification Statement:
+For the lines of code that were not written by myself, extra effort was made to ensure I clearly understood what
+was happening within the code.  I did utilize additional outside resources (most notably Geeks for Geek's article on Bitwise Operators in C: https://www.geeksforgeeks.org/c/bitwise-operators-in-c-cpp/)
+for extra information to ensure I was understanding the code AI developed.  The code has been tested by me, not only with the provided test cases, but also test cases
+that I developed and ones that the AI suggested within the following prompts.  It is working as intended.  A known limitation of this code is that the input
+cannot exceed 1024 characters.  Anything longer than that would need to be split into multiple entries to test the string.
+=====================================================
+--> Prompt 1
+Date: 9/25/2026
+Prompt:
+I am creating an IPv4 address extractor for a class assignment where I am asked to use AI.
+ 
+To extract, there is an octet like this:
+ 
+[0-255].[0-255].[0-255].[0-255\]:[0-65535]
+ 
+where the colon and port number are optional.
+ 
+I am coding in C, and am not allowed to use built-in functions or libraries including the following:
+ 
+1. Any string-to-number conversion function:
+atoi, atol, atoll, strtol, strtoul, strtod, stoi, stol, stoul,
+sscanf, scanf with numeric conversions.
+ 
+2. Any address-parsing library function:
+inet_aton, inet_pton, inet_addr, or equivalents.
+ 
+3. Any regular-expression facility:
+std::regex, POSIX regex.h, or similar. The parsing and validation
+logic must be my own character-by-character code, not a pattern
+matched by a library.
+ 
+4. Standard character-classification functions (isdigit, etc.) are
+fine to use.
+ 
+I have a good start on the code, but am supposed to use AI to help
+write it so I can get experience with GAI-assisted code generation,
+and closely review the AI output and develop test cases.
+ 
+This is the code I have so far. The toInt() function is currently not
+in use, but I thought it may be helpful converting the numerical
+characters into integers.
+ 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int extractIPv4(const char* str, unsigned long* outAddress, int* outPort);
+int toInt(char c);
+
+int main(void) {
+
+    const char* str;
+    unsigned long* outAddress;
+    int* outPort;
+    int validAddress;
+
+    char input[1024]; //inputs larger need to be split.
+
+    while(1) {
+
+        printf("Enter a string (or 'END' to quit): ");
+        scanf("%1023[^\n]%*c", input);
+        if (input[0] == 'E' && input[1] == 'N' && input[2] == 'D' && input[3] == '\0') {
+            printf("Program terminated.\n");
+            break;
+        }
+    
+        str = input;
+        
+        validAddress = extractIPv4(str, outAddress, outPort);
+
+        if (validAddress == 0) {
+            //Address is not valid
+            printf("Invalid input: no valid IPv4 address found\n");
+        }  else {
+            //is a valid IPv4 address
+            printf("Extracted IPv4 address: ");
+        }
+
+    }
+
+    return 0;
+}
+
+
+int extractIPv4(const char* str, unsigned long* outAddress, int* outPort) {
+    int validAddress = 0; //returns 1 if valid address, 0 else
+    char temp[256];
+    int tempIndex = 0;
+    
+    //Goal: only copy numerical & digit values to temp array (ignore spaces and letters):
+    for (int i = 0; str[i] != '\0'; i++) {
+            //printf("%c\n", str[i]);
+            if (str[i] == '.' || str[i] == ':' || str[i] == '0' || str[i] == '1'|| str[i] == '2'|| str[i] == '3'|| str[i] == '4'|| str[i] == '5'|| str[i] == '6' || str[i] == '8'|| str[i] == '9') {
+                temp[tempIndex] = str[i];
+                tempIndex++;
+            }
+    }
+
+    printf("Items added to the temp array: ");
+    for (int i = 0; i < tempIndex; i++) {
+        printf("%c", temp[i]);
+    }
+    printf("\n");
+
+    return validAddress;
+}
+
+/*Convert a char to an int to do value comparisons */
+int toInt(char c) {
+    switch (c) {
+        case '0':
+            return 0;
+        case '1':
+            return 1;
+        case '2':
+            return 2;
+        case '3':
+            return 3;
+        case '4':
+            return 4;
+        case '5':
+            return 5;
+        case '6':
+            return 6;
+        case '7':
+            return 7;
+        case '8':
+            return 8;
+        case '9':
+            return 9;
+        default:
+            return -1;
+    }
+        
+}
+
+--> Modifications made to AI code (if any, and why):
+AI pointed out that I was missing the comparison for '7' in the extractIPv4 function, so I added that.
+It also pointed out some errors with how I was handling pointers, so I fixed that, along with adding a null terminator to my temp string.
+AI said I may not need my toInt function, and asked if I wanted to see an example where that function was not needed.
+It also warned the way I am stripping the characters from the strings (removing everything that is not a digit, '.' or ':') may result in missed IPv4 strings.
+Finally, AI warned that how I am getting the string from the user causes unintended behavior when a null string is entered--I tested this, and it was correct.
+=====================================================
+--> Prompt 2
+Date: 9/25/2026
+Prompt:
+First, can we examine how I am taking the input from the user in the main function.  You are correct--when I enter a null string, my program enters an infinite loop.  What would be the best way to solve this?
+
+--> Modifications made to AI code (if any, and why):
+AI recommended that I add an if statement to check the status of the scanf statement.  This safely handled the edge case where a null input is entered by the user, which is a test case that I hadn't thought to check so early in the project.
+=====================================================
+--> Prompt 3
+Date: 9/25/2026
+Prompt:
+Right now, my program is failing this test case: "Enter a string (or 'END' to quit): 192a168.1.1.1
+Extracted IPv4 address: 168.1.1.1 (decimal value: 2818638081, port: none)" It is instead printing "192168.1.1.1."  Can you help me develop the token validation, instead of simply stripping away everything that is not a digit, ".", or ":"?
+
+--> Modifications made to AI code (if any, and why):
+AI recommended an else statement within the extractIPv4 function to help me handle the error I mentioned in the prompt to properly handle that use case.  Their solution was elegant, and during testing, I found that it did properly handle this test case.
+=====================================================
+--> Prompt 4
+Date: 9/26/2026
+Prompt:
+Okay, I think I'm ready for checking the tokens now?  What is the best way to do this?  For each of the four parts, they can only be [0-255], and have no leading zeros unless the value actually is zero.
+
+--> Modifications made to AI code (if any, and why):
+AI gave me some code to help check each of the tokens for checking the IP addresses.  It incorrectly put break statements when I could have simply returned 0 (not a valid IP address), so I adjusted this.
+It also randomly printed some garbage characters into the suggested code (lots of random *'s), so I carefully checked and adjusted this to ensure each line was clean and made sense to me.
+=====================================================
+--> Prompt 5
+Date: 9/26/2026
+Prompt:
+Is it necessary to overwrite str to store the temp string to str?  I need to access it in the main loop to print: "main receives the result from extractIPv4 and formats the output exactly as specified above."
+
+--> Modifications made to AI code (if any, and why):
+My original code before this prompt, I tried to overwrite the str in the extract IPv4 function, because I assumed that was how I needed to return the temporary array.  Because AI suggested I should returning the decimal value instead, 
+it recommended that I rebuild the octets within main(), before printing.  This avoided the issues I was previously running into with overwriting str.  I tested this, and it did fail some of my test cases, so I had to do some debugging.
+In particular, if failed for the input: 10.0.0.255:8080end, because I haven't yet written the portions for the colon or port address checking.
+=====================================================
+--> Prompt 6
+Date: 9/26/2026
+Prompt:
+I've implemented colon counting (much like how I counted the periods), but need some assistance with its positioning.
+
+--> Modifications made to AI code (if any, and why):
+AI produced code to help with colon positioning so I can ensure it is in the correct position so that I can check the port number, to ensure it is within the proper ranges [0, 65535].
+AI produced several extra test cases for me to try, in addition to the provided cases in the assignment, which was especially helpful.  
+=====================================================
+--> Prompt 7
+Date: 9/26/2026
+Prompt:
+Several of your suggested edits include bitwise shifts and bitwise ANDs.  It has been awhile since I have worked with those--can you give me a crash course, so I can better understand how to use them?
+
+--> Modifications made to AI code (if any, and why):
+AI carefully explained to me how the bitwise shifts and ANDs work, to help me extract portions of an IP address more efficiently.  
+I learned to shift to the right in multiples of 8, and use the bitwise AND to collect only the intended byte (they called it a "mask").
+I also referenced a Geeks for Geeks article on the subject (link provided at the top of the page).
+=====================================================
+--> Prompt [8,n]
+Date: 9/26/2026
+Prompt:
+There were a few short additional prompts to clarify a specific line of code, to ensure I was understanding each in detail.
+
+--> Modifications made to AI code (if any, and why):
+This strengthened my understanding, and also allowed me to write more clear comments.
+=====================================================
